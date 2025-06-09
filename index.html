@@ -162,10 +162,6 @@
             cursor: pointer;
             border: 2px solid #eee;
         }
-
-        .color-option:hover {
-            transform: scale(1.1);
-        }
     </style>
 </head>
 <body>
@@ -174,7 +170,7 @@
     </div>
     
     <div class="controls">
-        <input type="text" id="textInput" size="14" placeholder="Введите текст...">
+        <input type="text" id="textInput" size="14" placeholder="Введите текст..." autocomplete="off" autocorrect="off" spellcheck="false">
         <button class="btn reset-btn" id="resetBtn">X</button>
         <button class="btn color-btn" id="colorBtn">🎨</button>
         <button class="btn qr-btn" id="qrBtn">QR</button>
@@ -215,12 +211,6 @@
         const colorPalette = document.getElementById('colorPalette');
         const colorOptions = document.querySelectorAll('.color-option');
 
-        // Загрузка сохраненного цвета из localStorage
-        const savedColor = localStorage.getItem('textColor');
-        if (savedColor) {
-            rotatedText.style.color = savedColor;
-        }
-
         function updateTextSize() {
             const text = textInput.value;
             rotatedText.textContent = text;
@@ -230,6 +220,12 @@
             const fontSize = containerHeight / textLength;
             
             rotatedText.style.fontSize = `${fontSize}pt`;
+        }
+
+        // Функция для проверки и очистки ввода
+        function sanitizeInput(value) {
+            // Разрешаем только буквы (латиница, кириллица) и дефис
+            return value.replace(/[^a-zA-Zа-яА-Я-]/g, '');
         }
 
         // Сброс текста
@@ -256,7 +252,6 @@
             option.addEventListener('click', () => {
                 const color = option.getAttribute('data-color');
                 rotatedText.style.color = color;
-                localStorage.setItem('textColor', color);
                 colorPalette.style.display = 'none';
             });
         });
@@ -278,8 +273,31 @@
             }
         });
 
-        // Обработчики событий
-        textInput.addEventListener('input', updateTextSize);
+        // Обработчики событий для поля ввода
+        textInput.addEventListener('input', function() {
+            // Очищаем ввод от недопустимых символов
+            this.value = sanitizeInput(this.value);
+            updateTextSize();
+        });
+        
+        // Обработка вставки текста
+        textInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const sanitized = sanitizeInput(pastedText);
+            
+            // Вставляем очищенный текст
+            const startPos = this.selectionStart;
+            const endPos = this.selectionEnd;
+            this.value = this.value.substring(0, startPos) + 
+                         sanitized + 
+                         this.value.substring(endPos, this.value.length);
+            
+            // Обновляем позицию курсора
+            this.selectionStart = this.selectionEnd = startPos + sanitized.length;
+            updateTextSize();
+        });
+        
         // Скрытие клавиатуры при нажатии Enter
         textInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
@@ -288,6 +306,7 @@
                 window.scrollTo(0, 0);
             }
         });
+        
         window.addEventListener('resize', updateTextSize);
         updateTextSize();
     </script>
