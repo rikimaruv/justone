@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Just One</title>
     <style>
-        body {
+        html, body {
             margin: 0;
             padding: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
+            font-family: Arial, sans-serif;
         }
 
         #textContainer {
@@ -27,26 +28,101 @@
             transform: rotate(90deg);
             transform-origin: center;
             white-space: nowrap;
-            font-family: Arial, sans-serif;
             color: #333;
             display: flex;
             align-items: center;
-			text-transform: uppercase;
+            text-transform: uppercase;
             position: absolute;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .controls {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #ddd;
         }
 
         #textInput {
-            padding: 20px;
+            padding: 15px;
             font-size: 18px;
             border: 2px solid #ccc;
             outline: none;
-            width: calc(100% - 44px);
-            margin: 10px;
+            flex: 1;
+            margin-right: 10px;
             box-sizing: border-box;
-            position: sticky;
-            bottom: 0;
+        }
+
+        .btn {
+            padding: 15px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .reset-btn {
+            background-color: #f44336;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .reset-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .qr-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .qr-btn:hover {
+            background-color: #388E3C;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
             background: white;
-            z-index: 2;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        #qrImage {
+            max-width: 256px;
+            max-height: 256px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .close-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .close-btn:hover {
+            background-color: #0b7dda;
         }
     </style>
 </head>
@@ -54,12 +130,29 @@
     <div id="textContainer">
         <div id="rotatedText"></div>
     </div>
-    <input type="text" id="textInput" placeholder="Введите текст здесь...">
+    
+    <div class="controls">
+        <input type="text" id="textInput" placeholder="Введите текст здесь...">
+        <button class="btn reset-btn" id="resetBtn">Сбросить</button>
+        <button class="btn qr-btn" id="qrBtn">QR-код</button>
+    </div>
+    
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <h2>QR-код для вашего текста</h2>
+            <img id="qrImage" src="qr.png" alt="QR Code">
+            <button class="close-btn" id="closeModal">Закрыть</button>
+        </div>
+    </div>
 
     <script>
         const textInput = document.getElementById('textInput');
         const rotatedText = document.getElementById('rotatedText');
         const textContainer = document.getElementById('textContainer');
+        const resetBtn = document.getElementById('resetBtn');
+        const qrBtn = document.getElementById('qrBtn');
+        const qrModal = document.getElementById('qrModal');
+        const closeModal = document.getElementById('closeModal');
 
         function updateTextSize() {
             const text = textInput.value;
@@ -69,8 +162,31 @@
             const textLength = text.length || 1;
             const fontSize = containerHeight / textLength;
             
-            rotatedText.style.fontSize = `${fontSize}px`;
+            rotatedText.style.fontSize = `${fontSize}pt`;
         }
+
+        // Сброс текста
+        resetBtn.addEventListener('click', () => {
+            textInput.value = '';
+            rotatedText.textContent = '';
+        });
+
+        // Показать QR-код
+        qrBtn.addEventListener('click', () => {
+            qrModal.style.display = 'flex';
+        });
+
+        // Закрыть модальное окно
+        closeModal.addEventListener('click', () => {
+            qrModal.style.display = 'none';
+        });
+
+        // Закрыть модальное окно при клике вне его
+        window.addEventListener('click', (e) => {
+            if (e.target === qrModal) {
+                qrModal.style.display = 'none';
+            }
+        });
 
         // Обработчики событий
         textInput.addEventListener('input', updateTextSize);
