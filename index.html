@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just One</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #textContainer {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+
+        #rotatedText {
+            transform: rotate(90deg);
+            transform-origin: center;
+            white-space: nowrap;
+            font-family: Arial, sans-serif;
+            color: #333;
+            display: flex;
+            align-items: center;
+			text-transform: uppercase;
+            position: absolute;
+        }
+
+        #textInput {
+            padding: 20px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+            outline: none;
+            width: calc(100% - 44px);
+            margin: 10px;
+            box-sizing: border-box;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div id="textContainer">
+        <div id="rotatedText"></div>
+    </div>
+    <input type="text" id="textInput" placeholder="Введите текст здесь...">
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const rotatedText = document.getElementById('rotatedText');
+        const textContainer = document.getElementById('textContainer');
+
+        function updateTextSize() {
+            const text = textInput.value;
+            rotatedText.textContent = text;
+            
+            const containerHeight = textContainer.offsetHeight;
+            const textLength = text.length || 1;
+            const fontSize = containerHeight / textLength;
+            
+            rotatedText.style.fontSize = `${fontSize}px`;
+        }
+
+        // Обработчики событий
+        textInput.addEventListener('input', updateTextSize);
+        window.addEventListener('resize', updateTextSize);
+        updateTextSize(); // Инициализация при загрузке
+    </script>
+</body>
+</html>
