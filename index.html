@@ -136,13 +136,14 @@
         <button class="btn qr-btn" id="qrBtn">QR</button>
     </div>
     
-    <div id="qrModal" class="modal">
+	
+    <form id="qrModal" class="modal">
         <div class="modal-content">
-            <h2>QR-код сайта</h2>
+            <h2>QR-код для вашего текста</h2>
             <img id="qrImage" src="qr.png" alt="QR Code">
             <button class="close-btn" id="closeModal">Закрыть</button>
         </div>
-    </div>
+    </form>
 
     <script>
         const textInput = document.getElementById('textInput');
@@ -168,6 +169,7 @@
         resetBtn.addEventListener('click', () => {
             textInput.value = '';
             rotatedText.textContent = '';
+			textInput.focus();
         });
 
         // Показать QR-код
@@ -189,6 +191,16 @@
 
         // Обработчики событий
         textInput.addEventListener('input', updateTextSize);
+		// Скрытие клавиатуры при нажатии Enter
+        textInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Предотвращаем действие по умолчанию
+                this.blur(); // Убираем фокус с поля ввода
+                
+                // Дополнительно: скролл наверх для лучшего отображения текста
+                window.scrollTo(0, 0);
+            }
+        });
         window.addEventListener('resize', updateTextSize);
         updateTextSize(); // Инициализация при загрузке
     </script>
